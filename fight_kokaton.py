@@ -100,6 +100,7 @@ class Beam:
         self.rct.right = bird.rct.right #ビームの発射位置
         self.vx, self.vy = +5, 0
 
+
     def update(self, screen: pg.Surface):
         """
         ビームを速度ベクトルself.vx, self.vyに基づき移動させる
