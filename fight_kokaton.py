@@ -109,8 +109,24 @@ class Beam:
             self.rct.move_ip(self.vx, self.vy)
             screen.blit(self.img, self.rct)   
 
-    
+class Score:
+    def __init__(self): #座標を受け取る
+        """
+        爆弾を打ち落とすと得点加算
+        """
+        self.fonto = pg.font.SysFont("hgp創英角ポップ体", 30)
+        self.color = (0,0,255) #青色
+        self.score = 0
+        self.img = self.fonto.render(f"SCORE:{self.score}",0,self.color)
+        self.rct = self.img.get_rect()
+        self.rct.center = (100,HEIGHT-50)
 
+    def update(self,screen:pg.surface): 
+            """
+            当たったらプラス1
+            """
+            self.img = self.fonto.render(f"SCORE:{self.score}",0,self.color)
+            screen.blit(self.img,self.rct)
 
 class Bomb:
     """
@@ -152,6 +168,8 @@ def main():
     bomb = Bomb((255, 0, 0), 10)
     bombs = [Bomb((255,0,0),10) for _ in range(NUM_OF_BOMBS)]
     clock = pg.time.Clock()
+    score_count = Score()
+    beamlist =[] #ビームをたくさん打つためのリスト
     tmr = 0
     while True:
         for event in pg.event.get():
@@ -160,9 +178,11 @@ def main():
             if event.type == pg.KEYDOWN and event.key == pg.K_SPACE:
                 # スペースキー押下でBeamクラスのインスタンス生成
                 beam = Beam(bird)   
+                beamlist.append(beam) #ビームを追加するよ
         screen.blit(bg_img, [0, 0])
 
-        if bomb is not None:
+        # if bomb is not None:
+        for bomb in bombs:
             if bird.rct.colliderect(bomb.rct):
                 # ゲームオーバー時に，こうかとん画像を切り替え，1秒間表示させる
                 bird.change_img(8, screen)
@@ -179,9 +199,12 @@ def main():
                 if beam.rct.colliderect(bomb.rct):  # ビームと爆弾の衝突判定
                     beam = None  # ビームを消す
                     bombs[j] = None  # 爆弾を消す
+                    score_count.score += 1
                     bird.change_img(6, screen)  # よろこびエフェクト
             bombs = [bomb for bomb in bombs if bomb is not None]  # 撃ち落とされてない爆弾だけのリストにする
 
+
+        score_count.update(screen)
         key_lst = pg.key.get_pressed()
         bird.update(key_lst, screen)
         if beam is not None:
